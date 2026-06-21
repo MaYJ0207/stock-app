@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>扫码安装 AI选股</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f1117;color:#c9d1d9;font-family:"Microsoft YaHei",sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:20px}
+.card{background:#1a1d2a;border:1px solid #2a2d3a;border-radius:16px;padding:24px;max-width:420px;width:100%;text-align:center}
+.app-icon{font-size:64px;margin-bottom:8px}
+h1{font-size:22px;margin-bottom:4px;background:linear-gradient(90deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:13px;color:#6e7681;margin-bottom:24px}
+.qr-wrap{background:#fff;border-radius:12px;padding:12px;display:inline-block;margin-bottom:16px;box-shadow:0 0 30px rgba(88,166,255,0.15)}
+.qr-wrap img{display:block;width:240px;height:240px;image-rendering:pixelated}
+.url-input{width:100%;padding:10px 14px;border-radius:8px;border:1px solid #2a2d3a;background:#0f1117;color:#c9d1d9;font-size:12px;margin-bottom:12px;text-align:center}
+.url-input:focus{outline:none;border-color:#58a6ff}
+.btn{display:inline-block;padding:12px 28px;border-radius:10px;border:none;background:#58a6ff;color:#fff;font-weight:700;font-size:14px;cursor:pointer;margin:4px}
+.btn:hover{opacity:0.85}
+.btn.ghost{background:transparent;border:1px solid #2a2d3a;color:#c9d1d9}
+.steps{text-align:left;margin-top:20px;font-size:12px;color:#6e7681;line-height:2}
+.steps span{color:#58a6ff;font-weight:700;margin-right:4px}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;background:#1f2440;border:1px solid #3a3f5c;font-size:11px;margin:2px}
+.badge.ios{color:#58a6ff;border-color:#58a6ff}
+.badge.android{color:#3fb950;border-color:#3fb950}
+.print-only{display:none}
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  .card{background:#fff;border:2px dashed #ccc;padding:16px;max-width:100%}
+  .subtitle,.url-input,.btn,.badge,.steps{display:none}
+  .print-only{display:block;font-size:12px;margin-top:8px}
+  h1{-webkit-text-fill-color:#1a1d2a}
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="app-icon">📊</div>
+  <h1>AI 智能选股</h1>
+  <p class="subtitle">扫描二维码安装APP</p>
+
+  <!-- QR Code -->
+  <div class="qr-wrap" id="qrWrap">
+    <img id="qrImage" src="" alt="QR Code" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22><rect width=%22240%22 height=%22240%22 fill=%22%23fff%22/><text x=%22120%22 y=%22120%22 text-anchor=%22middle%22 font-size=%2214%22 fill=%22%23999%22>QR加载中...</text></svg>'">
+  </div>
+
+  <!-- 部署URL -->
+  <input type="text" class="url-input" id="deployUrl" 
+         placeholder="输入部署网址后按回车生成二维码"
+         value="https://你的用户名.github.io/stock-app/index.html">
+
+  <div style="margin-top:4px">
+    <button class="btn" onclick="generateQR()">🔄 生成二维码</button>
+    <button class="btn ghost" onclick="window.print()">🖨️ 打印</button>
+  </div>
+
+  <!-- 平台标识 -->
+  <div style="margin-top:16px">
+    <span class="badge ios">📱 iPhone</span>
+    <span class="badge android">🤖 Android</span>
+  </div>
+
+  <!-- 安装步骤 -->
+  <div class="steps">
+    <p><span>❶</span> 用手机相机扫描上方二维码</p>
+    <p><span>❷</span> 在浏览器中打开网页</p>
+    <p><span>❸</span> <b>iPhone:</b> Safari → 分享 → 「添加到主屏幕」</p>
+    <p style="padding-left:16px"><b>Android:</b> Chrome → 菜单 → 「安装应用」</p>
+    <p><span>❹</span> 桌面出现APP图标，像原生应用一样打开</p>
+  </div>
+
+  <div class="print-only">
+    📊 AI选股 | 扫码安装 | 13因子模型
+  </div>
+</div>
+
+<script>
+const DEFAULT_URL = 'https://你的用户名.github.io/stock-app/index.html';
+
+function generateQR() {
+  const input = document.getElementById('deployUrl');
+  let url = input.value.trim();
+  if (!url) { url = DEFAULT_URL; input.value = url; }
+  // 使用免费QR API (可靠稳定)
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&margin=10`;
+  document.getElementById('qrImage').src = qrSrc;
+  // 保存到 localStorage
+  try { localStorage.setItem('deployUrl', url); } catch(e) {}
+}
+
+// 页面加载
+(function(){
+  const input = document.getElementById('deployUrl');
+  // 恢复上次URL
+  try { 
+    const saved = localStorage.getItem('deployUrl');
+    if (saved) input.value = saved;
+  } catch(e) {}
+  generateQR();
+  // 回车生成
+  input.addEventListener('keydown', e => { if(e.key==='Enter') generateQR(); });
+})();
+</script>
+</body>
+</html>
